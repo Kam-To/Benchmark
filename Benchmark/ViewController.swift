@@ -15,25 +15,25 @@ class ViewController: UIViewController {
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         let names = ["cat.jpg"]//, "underpass.jpg", "wave.jpg"]
-        let cnt = 5
+        let cnt = 1
         for fileName in names {
             print("=== \(fileName)===");
             var caseA = TimeInterval(0)
             var caseB = TimeInterval(0)
             
-autoreleasepool {
-            print("\nStart PreparingForDisplay.vs.DrawInCtx");
-            perfrom(iterationCnt: cnt) {
-                caseA += benchmarkPreparingForDisplay(fileName: fileName)
-                caseB += benchmarkDrawInRectForDisplay(fileName: fileName)
-            }
-            print("Avg cost of PreparingForDisplay  : \(caseA)");
-            print("Avg cost of DrawInCtx            : \(caseB)");
-            print("End PreparingForDisplay.vs.DrawInCtx\n");
-}
+//autoreleasepool {
+//            print("\nStart PreparingForDisplay.vs.DrawInRect");
+//            perfrom(iterationCnt: cnt) {
+//                caseA += benchmarkPreparingForDisplay(fileName: fileName)
+//                caseB += benchmarkDrawInRectForDisplay(fileName: fileName)
+//            }
+//            print("Avg cost of PreparingForDisplay  : \(caseA)");
+//            print("Avg cost of DrawInCtx            : \(caseB)");
+//            print("End PreparingForDisplay.vs.DrawInRect\n");
+//}
 
 autoreleasepool {
-            print("\nStart PreparingThumbnail.vs.DrawInCtx");
+            print("\nStart PreparingThumbnail.vs.DrawInRect");
             caseA = TimeInterval(0)
             caseB = TimeInterval(0)
             perfrom(iterationCnt: cnt) {
@@ -42,21 +42,21 @@ autoreleasepool {
             }
             print("Avg cost of PreparingThumbnail   : \(caseA)");
             print("Avg cost of DrawInCtx            : \(caseB)");
-            print("End PreparingThumbnail.vs.DrawInCtx\n");
+            print("End PreparingThumbnail.vs.DrawInRect\n");
 }
 
-autoreleasepool {
-            print("\nStart PreparingThumbnail.vs.CGImageSourceCreateThumbnail");
-            caseA = TimeInterval(0)
-            caseB = TimeInterval(0)
-            perfrom(iterationCnt: cnt) {
-                caseA += benchmarkPreparingThumbnail(fileName: fileName)
-                caseB += benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: fileName)
-            }
-            print("Avg cost of PreparingThumbnail           : \(caseA)");
-            print("Avg cost of CGImageSourceCreateThumbnail : \(caseB)");
-            print("End PreparingThumbnail.vs.CGImageSourceCreateThumbnail\n");
-}
+//autoreleasepool {
+//            print("\nStart PreparingThumbnail.vs.CGImageSourceCreateThumbnail");
+//            caseA = TimeInterval(0)
+//            caseB = TimeInterval(0)
+//            perfrom(iterationCnt: cnt) {
+//                caseA += benchmarkPreparingThumbnail(fileName: fileName)
+//                caseB += benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: fileName)
+//            }
+//            print("Avg cost of PreparingThumbnail           : \(caseA)");
+//            print("Avg cost of CGImageSourceCreateThumbnail : \(caseB)");
+//            print("End PreparingThumbnail.vs.CGImageSourceCreateThumbnail\n");
+//}
             
 autoreleasepool {
             print("\nStart PreparingThumbnail.vs.UIGraphicsImageRenderer");
@@ -147,8 +147,7 @@ autoreleasepool {
         let imageSize = image.size
         let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
         UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
-        image.draw(in: CGRect(origin: .zero, size: image.size))
-        // MARK: content mis-match
+        image.draw(in: CGRect(origin: .zero, size: targetSize))
         let _ = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         let end = Date()
@@ -161,8 +160,7 @@ autoreleasepool {
         let imageSize = image.size
         let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
         let renderer = UIGraphicsImageRenderer(size: targetSize)
-        let rect = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.width)
-        // MARK: content mis-match
+        let rect = CGRect(x: 0, y: 0, width: targetSize.width, height: targetSize.height)
         let _ = renderer.image { ctx in
             image.draw(in: rect)
         }
