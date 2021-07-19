@@ -14,23 +14,24 @@ class ViewController: UIViewController {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let names = ["cat.jpg"]//, "underpass.jpg", "wave.jpg"]
-        let cnt = 1
+        let names = ["cat.jpg", "underpass.jpg", "wave.jpg"]
+        let cnt = 3
+        let div = TimeInterval(cnt)
         for fileName in names {
             print("=== \(fileName)===");
             var caseA = TimeInterval(0)
             var caseB = TimeInterval(0)
             
-//autoreleasepool {
-//            print("\nStart PreparingForDisplay.vs.DrawInRect");
-//            perfrom(iterationCnt: cnt) {
-//                caseA += benchmarkPreparingForDisplay(fileName: fileName)
-//                caseB += benchmarkDrawInRectForDisplay(fileName: fileName)
-//            }
-//            print("Avg cost of PreparingForDisplay  : \(caseA)");
-//            print("Avg cost of DrawInCtx            : \(caseB)");
-//            print("End PreparingForDisplay.vs.DrawInRect\n");
-//}
+autoreleasepool {
+            print("\nStart PreparingForDisplay.vs.DrawInRect");
+            perfrom(iterationCnt: cnt) {
+                caseA += benchmarkPreparingForDisplay(fileName: fileName)
+                caseB += benchmarkDrawInRectForDisplay(fileName: fileName)
+            }
+            print("Avg cost of PreparingForDisplay  : \(caseA / div)");
+            print("Avg cost of DrawInRect           : \(caseB / div)");
+            print("End PreparingForDisplay.vs.DrawInRect\n");
+}
 
 autoreleasepool {
             print("\nStart PreparingThumbnail.vs.DrawInRect");
@@ -40,23 +41,23 @@ autoreleasepool {
                 caseA += benchmarkPreparingThumbnail(fileName: fileName)
                 caseB += benchmarkThumbnailDrawInRect(fileName: fileName)
             }
-            print("Avg cost of PreparingThumbnail   : \(caseA)");
-            print("Avg cost of DrawInCtx            : \(caseB)");
+            print("Avg cost of PreparingThumbnail   : \(caseA / div)");
+            print("Avg cost of DrawInRect           : \(caseB / div)");
             print("End PreparingThumbnail.vs.DrawInRect\n");
 }
 
-//autoreleasepool {
-//            print("\nStart PreparingThumbnail.vs.CGImageSourceCreateThumbnail");
-//            caseA = TimeInterval(0)
-//            caseB = TimeInterval(0)
-//            perfrom(iterationCnt: cnt) {
-//                caseA += benchmarkPreparingThumbnail(fileName: fileName)
-//                caseB += benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: fileName)
-//            }
-//            print("Avg cost of PreparingThumbnail           : \(caseA)");
-//            print("Avg cost of CGImageSourceCreateThumbnail : \(caseB)");
-//            print("End PreparingThumbnail.vs.CGImageSourceCreateThumbnail\n");
-//}
+autoreleasepool {
+            print("\nStart PreparingThumbnail.vs.CGImageSourceCreateThumbnail");
+            caseA = TimeInterval(0)
+            caseB = TimeInterval(0)
+            perfrom(iterationCnt: cnt) {
+                caseA += benchmarkPreparingThumbnail(fileName: fileName)
+                caseB += benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: fileName)
+            }
+            print("Avg cost of PreparingThumbnail           : \(caseA / div)");
+            print("Avg cost of CGImageSourceCreateThumbnail : \(caseB / div)");
+            print("End PreparingThumbnail.vs.CGImageSourceCreateThumbnail\n");
+}
             
 autoreleasepool {
             print("\nStart PreparingThumbnail.vs.UIGraphicsImageRenderer");
@@ -66,8 +67,8 @@ autoreleasepool {
                 caseA += benchmarkPreparingThumbnail(fileName: fileName)
                 caseB += benchmarkUIGraphicsImageRenderer(fileName: fileName)
             }
-            print("Avg cost of PreparingThumbnail       : \(caseA)");
-            print("Avg cost of UIGraphicsImageRenderer  : \(caseB)");
+            print("Avg cost of PreparingThumbnail       : \(caseA / div)");
+            print("Avg cost of UIGraphicsImageRenderer  : \(caseB / div)");
             print("End PreparingThumbnail.vs.UIGraphicsImageRenderer\n");
 }
         }
