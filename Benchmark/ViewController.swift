@@ -14,65 +14,61 @@ class ViewController: UIViewController {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        let names = ["cat.jpg", "underpass.jpg", "wave.jpg"]
+        let names = ["cat.jpg"]//, "underpass.jpg", "wave.jpg"]
         let cnt = 5
         for fileName in names {
             print("=== \(fileName)===");
-            var totalPreparing = TimeInterval(0)
-            var totalDraw = TimeInterval(0)
+            var caseA = TimeInterval(0)
+            var caseB = TimeInterval(0)
             
 autoreleasepool {
             print("\nStart PreparingForDisplay.vs.DrawInCtx");
             perfrom(iterationCnt: cnt) {
-                let (preparing, draw) = comparePreparingForDisplay(fileName: fileName)
-                totalPreparing += preparing
-                totalDraw += draw
+                caseA += benchmarkPreparingForDisplay(fileName: fileName)
+                caseB += benchmarkDrawInRectForDisplay(fileName: fileName)
             }
-            print("Avg cost of PreparingForDisplay  : \(totalPreparing)");
-            print("Avg cost of DrawInCtx            : \(totalDraw)");
+            print("Avg cost of PreparingForDisplay  : \(caseA)");
+            print("Avg cost of DrawInCtx            : \(caseB)");
             print("End PreparingForDisplay.vs.DrawInCtx\n");
 }
-            print("\nStart PreparingThumbnail.vs.DrawInCtx");
-            totalPreparing = TimeInterval(0)
-            totalDraw = TimeInterval(0)
+
 autoreleasepool {
+            print("\nStart PreparingThumbnail.vs.DrawInCtx");
+            caseA = TimeInterval(0)
+            caseB = TimeInterval(0)
             perfrom(iterationCnt: cnt) {
-                let (preparing, draw) = comparePreparingThumbnail(fileName: fileName)
-                totalPreparing += preparing
-                totalDraw += draw
+                caseA += benchmarkPreparingThumbnail(fileName: fileName)
+                caseB += benchmarkThumbnailDrawInRect(fileName: fileName)
             }
-            print("Avg cost of PreparingThumbnail   : \(totalPreparing)");
-            print("Avg cost of DrawInCtx            : \(totalDraw)");
+            print("Avg cost of PreparingThumbnail   : \(caseA)");
+            print("Avg cost of DrawInCtx            : \(caseB)");
             print("End PreparingThumbnail.vs.DrawInCtx\n");
 }
 
 autoreleasepool {
             print("\nStart PreparingThumbnail.vs.CGImageSourceCreateThumbnail");
-            totalPreparing = TimeInterval(0)
-            totalDraw = TimeInterval(0)
+            caseA = TimeInterval(0)
+            caseB = TimeInterval(0)
             perfrom(iterationCnt: cnt) {
-                let (preparing, draw) = compareThumbnailWithCGImageSourceCreateThumbnailAtIndex(fileName: fileName)
-                totalPreparing += preparing
-                totalDraw += draw
+                caseA += benchmarkPreparingThumbnail(fileName: fileName)
+                caseB += benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: fileName)
             }
-            print("Avg cost of PreparingThumbnail           : \(totalPreparing)");
-            print("Avg cost of CGImageSourceCreateThumbnail : \(totalDraw)");
+            print("Avg cost of PreparingThumbnail           : \(caseA)");
+            print("Avg cost of CGImageSourceCreateThumbnail : \(caseB)");
             print("End PreparingThumbnail.vs.CGImageSourceCreateThumbnail\n");
 }
             
 autoreleasepool {
             print("\nStart PreparingThumbnail.vs.UIGraphicsImageRenderer");
-            totalPreparing = TimeInterval(0)
-            totalDraw = TimeInterval(0)
+            caseA = TimeInterval(0)
+            caseB = TimeInterval(0)
             perfrom(iterationCnt: cnt) {
-                let (preparing, draw) = compareThumbnailWithUIGraphicsImageRenderer(fileName: fileName)
-                totalPreparing += preparing
-                totalDraw += draw
+                caseA += benchmarkPreparingThumbnail(fileName: fileName)
+                caseB += benchmarkUIGraphicsImageRenderer(fileName: fileName)
             }
-            print("Avg cost of PreparingThumbnail       : \(totalPreparing)");
-            print("Avg cost of UIGraphicsImageRenderer  : \(totalDraw)");
+            print("Avg cost of PreparingThumbnail       : \(caseA)");
+            print("Avg cost of UIGraphicsImageRenderer  : \(caseB)");
             print("End PreparingThumbnail.vs.UIGraphicsImageRenderer\n");
-            print("=== \(fileName)===");
 }
         }
     }
@@ -92,54 +88,41 @@ autoreleasepool {
         }
     }
     
-    func comparePreparingForDisplay(fileName: String) -> (TimeInterval, TimeInterval) {
-        let image = fetchImageWithName(fileName)
-        let imageSize = image.size
-        let targetSize = imageSize
+    func benchmarkPreparingForDisplay(fileName: String) -> TimeInterval {
         let start = Date()
-
-            let _ = image.preparingForDisplay()
-
-        let mid = Date()
-
-            UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
-            image.draw(in: CGRect(origin: .zero, size: image.size))
-            let _ = UIGraphicsGetImageFromCurrentImageContext()!
-            UIGraphicsEndImageContext()
-
+        let image = fetchImageWithName(fileName)
+        let _ = image.preparingForDisplay()
         let end = Date()
-        
-        let costOfPreparingForDisplay = mid.timeIntervalSince(start)
-        let costOfDrawInCtx = end.timeIntervalSince(mid)
-        return (costOfPreparingForDisplay, costOfDrawInCtx)
+        return end.timeIntervalSince(start)
     }
-
-    func comparePreparingThumbnail(fileName: String) -> (TimeInterval, TimeInterval) {
+    
+    func benchmarkDrawInRectForDisplay(fileName: String) -> TimeInterval {
+        let start = Date()
+        let image = fetchImageWithName(fileName)
+        let targetSize = image.size
+        UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        let _ = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
+        let end = Date()
+        return end.timeIntervalSince(start)
+    }
+    
+    func benchmarkPreparingThumbnail(fileName: String) -> TimeInterval {
+        let start = Date()
         let image = fetchImageWithName(fileName)
         let imageSize = image.size
         let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
-        let start = Date()
-            let _ = image.preparingThumbnail(of: targetSize)!
-        let mid = Date()
-            UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
-            image.draw(in: CGRect(origin: .zero, size: image.size))
-            let _ = UIGraphicsGetImageFromCurrentImageContext()!
-            UIGraphicsEndImageContext()
+        let _ = image.preparingThumbnail(of: targetSize)!
         let end = Date()
-        
-        let costOfPreparing = mid.timeIntervalSince(start)
-        let costOfDrawInCtx = end.timeIntervalSince(mid)
-        return (costOfPreparing, costOfDrawInCtx)
+        return end.timeIntervalSince(start)
     }
     
-    
-    func compareThumbnailWithCGImageSourceCreateThumbnailAtIndex(fileName: String) -> (TimeInterval, TimeInterval) {
+    func benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: String) -> TimeInterval {
+        let start = Date()
         let image = fetchImageWithName(fileName)
         let imageSize = image.size
         let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
-        let start = Date()
-            let _ = image.preparingThumbnail(of: targetSize)!
-        let mid = Date()
         let components = fileName.components(separatedBy: CharacterSet.init(charactersIn: "."))
         let name = components[0]
         let ext = components[1]
@@ -153,31 +136,38 @@ autoreleasepool {
             ] as [CFString : Any]
             let imageRef = CGImageSourceCreateThumbnailAtIndex(source, 0, options as CFDictionary)!
             let _ = UIImage.init(cgImage: imageRef)
+
         let end = Date()
-        
-        let costOfCaseA = mid.timeIntervalSince(start)
-        let costOfCaseB = end.timeIntervalSince(mid)
-        return (costOfCaseA, costOfCaseB)
+        return end.timeIntervalSince(start)
     }
     
-    func compareThumbnailWithUIGraphicsImageRenderer(fileName: String) -> (TimeInterval, TimeInterval) {
+    func benchmarkThumbnailDrawInRect(fileName: String) -> TimeInterval {
+        let start = Date()
         let image = fetchImageWithName(fileName)
         let imageSize = image.size
         let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
-        let start = Date()
-            let _ = image.preparingThumbnail(of: targetSize)!
-        let mid = Date()
-            let render = UIGraphicsImageRenderer(size: targetSize)
-            let _ = render.image { ctx in
-                let rect = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.width)
-                image.draw(in: rect)
-            }
+        UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
+        image.draw(in: CGRect(origin: .zero, size: image.size))
+        // MARK: content mis-match
+        let _ = UIGraphicsGetImageFromCurrentImageContext()!
+        UIGraphicsEndImageContext()
         let end = Date()
-        
-        let costOfCaseA = mid.timeIntervalSince(start)
-        let costOfCaseB = end.timeIntervalSince(mid)
-        return (costOfCaseA, costOfCaseB)
+        return end.timeIntervalSince(start)
     }
-    
+
+    func benchmarkUIGraphicsImageRenderer(fileName: String) -> TimeInterval {
+        let start = Date()
+        let image = fetchImageWithName(fileName)
+        let imageSize = image.size
+        let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
+        let renderer = UIGraphicsImageRenderer(size: targetSize)
+        let rect = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.width)
+        // MARK: content mis-match
+        let _ = renderer.image { ctx in
+            image.draw(in: rect)
+        }
+        let end = Date()
+        return end.timeIntervalSince(start)
+    }
 }
 
