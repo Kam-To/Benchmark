@@ -13,7 +13,15 @@ class ViewController: UIViewController {
         super.viewDidLoad()
     }
     
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+    @IBAction func compareAPIAction(_ sender: Any) {
+        compare()
+    }
+    
+    @IBAction func checkIsDisplayableAction(_ sender: Any) {
+        checkResultOfThumbnailingIsDisplayable(fileName: "cat.jpg")
+    }
+    
+    func compare() {
         let names = ["cat.jpg", "underpass.jpg", "wave.jpg"]
         let cnt = 3
         let div = TimeInterval(cnt)
@@ -121,6 +129,7 @@ autoreleasepool {
     
     func benchmarkThumbnailCGImageSourceCreateThumbnail(fileName: String) -> TimeInterval {
         let start = Date()
+        
         let image = fetchImageWithName(fileName)
         let imageSize = image.size
         let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
@@ -167,6 +176,16 @@ autoreleasepool {
         }
         let end = Date()
         return end.timeIntervalSince(start)
+    }
+    
+    func checkResultOfThumbnailingIsDisplayable(fileName: String) {
+        let image = fetchImageWithName(fileName)
+        let imageSize = image.size
+        let targetSize = CGSize(width: ceil(imageSize.width / 2.0), height: ceil(imageSize.height / 2.0))
+        let scaled = image.preparingThumbnail(of: targetSize)!
+        let result = scaled.preparingForDisplay()!
+        assert(scaled.cgImage == result.cgImage, "should be the same cgImage object")
+        print("preparingThumbnail is displayable")
     }
 }
 
