@@ -3,7 +3,7 @@ Demo about UIImage New API in iOS 15
 
 
 
-### ENV
+### Env
 
 MacBook Air (M1, 2020) 16 GB
 
@@ -11,16 +11,18 @@ Xcode Version 13.0 beta (13A5155e)
 
 
 
-### RESULT
+### Result
 
-Runing on **Simulator(iOS 15)**
+#### Runing on Simulator(iOS 15)
+
+Display
 
 |                     | **cat.jpg** | underpass.jpg | wave.jpg |
 | ------------------- | :---------- | ------------- | -------- |
 | preparingForDisplay | **0.40**    | **0.39**      | **0.50** |
 | DrawInRect          | 0.96        | 0.92          | 1.30     |
 
-
+Thumbnail
 
 |                                              | **cat.jpg** | underpass.jpg | wave.jpg |
 | -------------------------------------------- | ----------- | ------------- | -------- |
@@ -31,18 +33,20 @@ Runing on **Simulator(iOS 15)**
 
 
 
-Notice that the new API preparingThumbnail have almost identfical perfromance to ImageIO technique.
+***Notice that the new API `preparingThumbnail` have almost identfical perfromance to ImageIO technique.***
 
 
 
-Runing on **iPhone XR(iOS 15 beta3)**
+#### Runing on iPhone XR(iOS 15 beta3)
+
+Display
 
 |                     | **cat.jpg** | underpass.jpg | wave.jpg |
 | ------------------- | :---------- | ------------- | -------- |
 | preparingForDisplay | **0.29**    | **0.16**      | **0.22** |
 | DrawInRect          | 0.57        | 0.46          | **0.68** |
 
-
+Thumbnail
 
 |                                              | **cat.jpg** | underpass.jpg | wave.jpg |
 | -------------------------------------------- | ----------- | ------------- | -------- |
